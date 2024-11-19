@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://wallpaperaccess.com/full/3543885.jpg'); /* Replace with your background image URL */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #4CAF50;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #8cb90d;
+        }
+
+        .result, .error {
+            text-align: center;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .weather-details {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .icon {
+            display: inline-block;
+            margin-right: 5px;
+            color: #4CAF50;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #fff;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1><i class="fas fa-seedling icon"></i>Crop Recommendation System <br> ಬೆಳೆ ಶಿಫಾರಸ್ಸು ವ್ಯವಸ್ಥೆ </h1>
+    <form id="crop-form">
+        <label for="location"><i class="fas fa-map-marker-alt icon"></i>Location(ಸ್ಥಳ):</label>
+        <input type="text" name="location" required>
+
+        <label for="N"><i class="fas fa-flask icon"></i>Nitrogen-ನೈಟ್ರೋಜನ್ (N):</label>
+        <input type="number" step="any" name="N" required>
+
+        <label for="P"><i class="fas fa-flask icon"></i>Phosphorus- ಫಾಸ್ಫರಸ್ (P):</label>
+        <input type="number" step="any" name="P" required>
+
+        <label for="K"><i class="fas fa-flask icon"></i>Potassium- ಪೊಟ್ಯಾಯಸಿಯಂ (K):</label>
+        <input type="number" step="any" name="K" required>
+
+        <label for="ph"><i class="fas fa-vial icon"></i>pH:</label>
+        <input type="number" step="any" name="ph" required>
+
+        <button type="submit"><i class="fas fa-search icon"></i>Get Recommendation</button>
+    </form>
+
+    <h2 id="result"></h2>
+    <div id="error" class="error"></div>
+
+    <div id="weather-details" class="weather-details" style="display: none;">
+        <h2>Weather Details</h2>
+        <p id="temperature"><i class="fas fa-thermometer-half icon"></i></p>
+        <p id="humidity"><i class="fas fa-tint icon"></i></p>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Crop Recommendation System(TSP). All Rights Reserved.</p>
+    </div>
+
+    <script>
+        document.getElementById('crop-form').onsubmit = async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const inputData = {};
+            formData.forEach((value, key) => {
+                inputData[key] = parseFloat(value) || value; // Convert to float for numeric values, keep location as string
+            });
+
+            // Clear previous messages
+            document.getElementById('error').innerText = '';
+            document.getElementById('result').innerText = '';
+            document.getElementById('weather-details').style.display = 'none';
+
+            // Send the JSON data to the Flask backend
+            const response = await fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Set the content type to JSON
+                },
+                body: JSON.stringify(inputData) // Convert the inputData object to JSON string
+            });
+
+            // Handle the response
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('result').innerText = 'Recommended Crop: ' + result.recommended_crop;
+                document.getElementById('temperature').innerText = 'Temperature: ' + result.temperature + ' °C';
+                document.getElementById('humidity').innerText = 'Humidity: ' + result.humidity + ' %';
+                document.getElementById('weather-details').style.display = 'block';
+            } else {
+                const error = await response.json();
+                document.getElementById('error').innerText = error.error || 'An error occurred. Please try again.';
+            }
+        };
+    </script>
+</body>
+</html>
