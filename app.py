@@ -13,7 +13,7 @@ scaler = joblib.load('scaler.pkl')
 app = Flask(__name__)
 
 # Your OpenWeatherMap API key
-OPENWEATHER_API_KEY = 'eb1ee8d174d3e16c73fcb7520d79bba7'  # Replace with your actual OpenWeatherMap API key
+OPENWEATHER_API_KEY = '______'  # Replace with your actual OpenWeatherMap API key
 
 @app.route('/')
 def home():
